@@ -45,14 +45,14 @@ ORDER BY Pris DESC;
 SELECT *
 FROM Oblig1.Film
 WHERE Pris IS NULL
-ORDER BY Alder, Sjanger ASC;
+ORDER BY Alder, Sjanger;
 
 -- f):
 SELECT Sjanger, COUNT(Sjanger) AS 'Antall filmer', SUM(Pris) AS 'Totalpris'
 FROM Oblig1.Film
 WHERE Pris IS NOT NULL
 GROUP BY Sjanger
-ORDER BY Sjanger ASC;
+ORDER BY Sjanger;
 
 -- g):
 INSERT INTO Oblig1.Film
@@ -79,7 +79,7 @@ WHERE Sjanger = 'Action';
 SELECT Sjanger, Tittel, Pris
 FROM Oblig1.Film
 WHERE Sjanger = 'Action'
-ORDER BY Tittel ASC;
+ORDER BY Tittel;
 
 -- j):
 DELETE
@@ -88,7 +88,7 @@ WHERE Tittel = 'Anastasia';
 
 SELECT Tittel
 FROM Oblig1.Film
-ORDER BY Tittel ASC;
+ORDER BY Tittel;
 
 -- Oppgave 2
 -- a):
