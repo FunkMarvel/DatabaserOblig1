@@ -419,7 +419,7 @@ som resulterer i
 \subsection*{c)}
 Lager en faktura-tabell med kolonner for fakturanummer, kundenummer, beløp, opprettelsesdato, forfallsdato, filmnummer og betalt. Fakturanummeret er unikt til hver faktura, og brukes derfor som primærnøkkel. Kundenummeret er en fremmednøkkel knyttet til hovednøkkelen i kunde-tabellen, slik at man vet hvilken kunde som har utført bestillingen. Filmnummeret er også en fremmednøkkel knyttet til hovednøkkelen i film-tabellen, slik at man vet hvilken film som er blitt leid. Til slutt har vi en bool i betalt som er True, hvis fakturaen er betalt og false hvis den ikke er betalt.
 
-Ingen av nøklene kan være NULL, siden fakturaen må ha et fakturanummer, må kunne knyttes til en leietager, og må kunne knyttes til produktet som ble utleid, ellers er det ikke en gyldig faktura. Jeg lar beløp være NULL ved default, da må prisen føres inn manuelt. Jeg valgte å ha prisen som DECIMAL(7, 2), siden da kan beløp pål opptil 99.999,- brukes. Datoene skal være på formatet 'YYYY-MM-DD', f.eks. '2022.04.11', og de kan ikke være NULL, for da kan ikke transaksjonen tidfestes, og er ugyldig. Hvis en faktura ikke opprettes med utfylte datoer, så blir opprettelsesdatoen lik datoen når fakturaen ble lagt til i tabellen, og forfallsdato blir 14 dager fra opprettelsesdato.
+Ingen av nøklene kan være NULL, siden fakturaen må ha et fakturanummer, må kunne knyttes til en leietager, og må kunne knyttes til produktet som ble utleid, ellers er det ikke en gyldig faktura. Jeg lar beløp være NULL ved default, da må prisen føres inn manuelt. Jeg valgte å ha prisen som DECIMAL(7, 2), siden da kan beløp opp til 99.999,- brukes. Datoene er av typen DATE, slik at de er på formatet 'YYYY-MM-DD', f.eks. '2022.04.11', og de kan ikke være NULL, for da kan ikke transaksjonen tidfestes, og er ugyldig. Hvis en faktura ikke opprettes med utfylte datoer, så blir opprettelsesdatoen lik datoen når fakturaen ble lagt til i tabellen, og forfallsdato blir 14 dager fra opprettelsesdato.
 
 \begin{sql}
 oblig1> CREATE TABLE Oblig1.Faktura
@@ -539,10 +539,11 @@ Dokumentasjon av \verb+SUBSTRING_INDEX()+:
 \centering\includegraphics[width=\columnwidth]{op3a.png}
 \end{figure}
 Hentet fra:
+
 ORACLE. (2022). MySQL 8.0 Reference Manual: 12.8 String Functions and Operators [Documentation]. MySQL. \url{https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_substring-index}
 
 \subsection*{b)}
-For å vise at jeg kan bruke \verb+SUBSTRING_INDEX()+:, så bruker jeg den til å hente de to mitterste ordene i tittelen til film nummer \(14\) (Ghost in the Shell). Først lager jeg et uttrykk som deler tittelen ved mellomrom, og returnerer en streng med teksten opp til tredje mellomrom:
+For å vise at jeg kan bruke \verb+SUBSTRING_INDEX()+, så bruker jeg den til å hente de to midterste ordene i tittelen til film nummer \(14\) (Ghost in the Shell). Først lager jeg et uttrykk som deler tittelen ved mellomrom, og returnerer en streng med teksten opp til tredje mellomrom:
 \begin{sql}
 oblig1> SELECT SUBSTRING_INDEX((SELECT Tittel FROM Oblig1.Film WHERE FNr = 14), ' ', 3)
 [2022-09-11 23:43:05] 1 row retrieved starting from 1 in 21 ms (execution: 5 ms, fetching: 16 ms)
@@ -552,7 +553,7 @@ Den returnerer som forventet teksten 'Ghost in the':
 \centering\includegraphics[scale=1]{op3b1.png}
 \end{figure}
 
-Jeg kan så bruke det tidligere nevnte sql-uttrykket som input-teksten til \verb+SUBSTRING_INDEX()+, og count lik \(-2\), slik at jeg henter tekst fra slutten av input-teksten til første mellomrom:
+Jeg kan så bruke det tidligere nevnte sql-uttrykket som input-streng til \verb+SUBSTRING_INDEX()+, og med count lik \(-2\), slik at jeg henter substrengen med tekst fra høyre ende av input-strengen til første mellomrom i input-strengen:
 \begin{sql}
 oblig1> SELECT SUBSTRING_INDEX((SELECT SUBSTRING_INDEX((SELECT Tittel FROM Oblig1.Film WHERE FNr = 14), ' ', 3)), ' ', -2)
 [2022-09-11 23:43:05] 1 row retrieved starting from 1 in 44 ms (execution: 6 ms, fetching: 38 ms)
@@ -577,10 +578,11 @@ Jeg ser så at alle tre tabellene i Oblig1 databasen har en 'InnoDB' som verdi i
 
 \subsection*{b)}
 Jeg fant dokumentasjonen for \verb+information_schema+ databasen her:
-ORACLE. (2022). MySQL Information Schema [Documentation]. MySQL. \sloppy\url{https://dev.mysql.com/doc/mysql-infoschema-excerpt/8.0/en/}
+
+ORACLE. (2022). MySQL Information Schema [Documentation]. MySQL. \url{https://dev.mysql.com/doc/mysql-infoschema-excerpt/8.0/en/}
 
 \subsection*{c)}
-Jeg sjekker tabellen for databasemotorer, for å se hvaslags informasjon er lagret om de:
+Jeg sjekker tabellen for databasemotorer, for å se hva slags informasjon er lagret om de:
 \begin{sql}
 oblig1> SELECT *
         FROM information_schema.ENGINES
