@@ -200,7 +200,7 @@ rmp,
 
 \maketitle                                % creates the title, author, date
 
-Til denne obligen brukte jeg en database som kjørte på Wampserver med MySQL 8.0.27, men jeg brukte JetBrains DataGrip til å faktisk skrive, samt kjøre SQL-koden og interagere med databasen.
+Til denne obligen brukte jeg en database som kjørte på Wampserver med MySQL 8.0.27, men jeg brukte JetBrains DataGrip til å faktisk skrive, samt kjøre SQL-koden og interagere med databasen. Kodeutklippene i dette dokumentet er alle hentet fra terminalen, slik at de inkluderer resultat-meldinger fra da de ble kjørt. I tillegg inkluderer de fleste kodeutklippene en ekstra spørring for å hente relevant info fra tabeller for å se endringene. En SQL-fil med all koden brukt i denne besvarelsen finner du her: \sloppy\url{https://github.com/FunkMarvel/DatabaserOblig1/blob/37b82b2bb52ebbd00d276b7ced98bb2fcd15f9d1/src/oblig1_queries.sql}
 
 \section*{Oppgave 1}
 \subsection*{a)}
@@ -359,7 +359,7 @@ som resulterer i
 \centering\includegraphics[scale=1]{op1i.png}
 \end{figure}
 
-\section*{j}
+\section*{j)}
 Sletter filmen 'Anastasia':
 \begin{sql}
 oblig1> DELETE
@@ -372,7 +372,7 @@ oblig1> SELECT Tittel
 [2022-09-11 19:35:25] 13 rows retrieved starting from 1 in 35 ms (execution: 17 ms, fetching: 18 ms)
 \end{sql}
 \newpage
-som resulterer i
+og jeg ser at 'Anastasia' ikke lenger er i tabellen:
 \begin{figure}[H]
 \centering\includegraphics[scale=1]{op1j.png}
 \end{figure}
