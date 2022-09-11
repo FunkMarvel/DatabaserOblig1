@@ -200,6 +200,8 @@ rmp,
 
 \maketitle                                % creates the title, author, date
 
+Til denne obligen brukte jeg en database som kjørte på Wampserver med MySQL 8.0.27, men jeg brukte JetBrains DataGrip til å faktisk skrive, samt kjøre SQL-koden og interagere med databasen.
+
 \section*{Oppgave 1}
 \subsection*{a)}
 For å lage databasen "Oblig1" bruker jeg sql setningen
@@ -502,16 +504,110 @@ oblig1> ALTER TABLE Oblig1.Faktura
 Prøver å legge inn faktura med ulovlig beløp:
 \begin{sql}
 oblig1> INSERT INTO Oblig1.Faktura (FakturaNr, KundeNr, FilmNr, Beløp)
-        VALUE (1010, 1003, 1, 10000.69)
-[2022-09-11 22:33:47] [HY000][3819] Check constraint 'Beløpsintervall' is violated.
-[2022-09-11 22:33:47] [HY000][3819] Check constraint 'Beløpsintervall' is violated.
+        VALUE (1010, 10003, 1, 10000.69)
+[2022-09-11 22:38:57] [HY000][3819] Check constraint 'Beløpsintervall' is violated.
+[2022-09-11 22:38:57] [HY000][3819] Check constraint 'Beløpsintervall' is violated.
 oblig1> SELECT *
         FROM Oblig1.Faktura
-[2022-09-11 22:34:03] 3 rows retrieved starting from 1 in 53 ms (execution: 6 ms, fetching: 47 ms)
+[2022-09-11 22:39:03] 3 rows retrieved starting from 1 in 53 ms (execution: 6 ms, fetching: 47 ms)
 \end{sql}
 Her fikk jeg en feilmelding om at forretningsregelen er brutt, og ved å printe tabellen så ser jeg at den ulovlige fakturaen ikke ble lagt til:
 \begin{figure}[H]
 \centering\includegraphics[width=\columnwidth]{op2f.png}
 \end{figure}
+
+\subsection*{h)}
+Reduserer beløpet med en faktor \(10\), og kjører koden på nytt. Denne gang kommer ingen feilmelding:
+\begin{sql}
+oblig1> INSERT INTO Oblig1.Faktura (FakturaNr, KundeNr, FilmNr, Beløp)
+        VALUE (1010, 10003, 1, 1000.69)
+[2022-09-11 22:39:01] 1 row affected in 5 ms
+oblig1> SELECT *
+        FROM Oblig1.Faktura
+[2022-09-11 22:39:04] 4 rows retrieved starting from 1 in 29 ms (execution: 3 ms, fetching: 26 ms)
+\end{sql}
+Jeg ser at den korrigerte fakturaen ble lagt til:
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op2h.png}
+\end{figure}
+
+\newpage
+\section*{Oppgave 3}
+\subsection*{a)}
+Dokumentasjon av \verb+SUBSTRING_INDEX()+:
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op3a.png}
+\end{figure}
+Hentet fra:
+ORACLE. (2022). MySQL 8.0 Reference Manual: 12.8 String Functions and Operators [Documentation]. MySQL. \url{https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_substring-index}
+
+\subsection*{b)}
+For å vise at jeg kan bruke \verb+SUBSTRING_INDEX()+:, så bruker jeg den til å hente de to mitterste ordene i tittelen til film nummer \(14\) (Ghost in the Shell). Først lager jeg et uttrykk som deler tittelen ved mellomrom, og returnerer en streng med teksten opp til tredje mellomrom:
+\begin{sql}
+oblig1> SELECT SUBSTRING_INDEX((SELECT Tittel FROM Oblig1.Film WHERE FNr = 14), ' ', 3)
+[2022-09-11 23:43:05] 1 row retrieved starting from 1 in 21 ms (execution: 5 ms, fetching: 16 ms)
+\end{sql}
+Den returnerer som forventet teksten 'Ghost in the':
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op3b1.png}
+\end{figure}
+
+Jeg kan så bruke det tidligere nevnte sql-uttrykket som input-teksten til \verb+SUBSTRING_INDEX()+, og count lik \(-2\), slik at jeg henter tekst fra slutten av input-teksten til første mellomrom:
+\begin{sql}
+oblig1> SELECT SUBSTRING_INDEX((SELECT SUBSTRING_INDEX((SELECT Tittel FROM Oblig1.Film WHERE FNr = 14), ' ', 3)), ' ', -2)
+[2022-09-11 23:43:05] 1 row retrieved starting from 1 in 44 ms (execution: 6 ms, fetching: 38 ms)
+\end{sql}
+Da for jeg som forventet teksten 'in the':
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op3b2.png}
+\end{figure}
+
+\section*{Oppgave 4}
+\subsection*{a)}
+Henter all data fra \verb+information_schema.TABLES+ med følgende spørring:
+\begin{sql}
+oblig1> SELECT *
+        FROM information_schema.TABLES
+[2022-09-11 23:55:12] 339 rows retrieved starting from 1 in 223 ms (execution: 52 ms, fetching: 171 ms)
+\end{sql}
+Jeg ser så at alle tre tabellene i Oblig1 databasen har en 'InnoDB' som verdi i ENGINE-kolonnen:
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op4a.png}
+\end{figure}
+
+\subsection*{b)}
+Jeg fant dokumentasjonen for \verb+information_schema+ databasen her:
+ORACLE. (2022). MySQL Information Schema [Documentation]. MySQL. \sloppy\url{https://dev.mysql.com/doc/mysql-infoschema-excerpt/8.0/en/}
+
+\subsection*{c)}
+Jeg sjekker tabellen for databasemotorer, for å se hvaslags informasjon er lagret om de:
+\begin{sql}
+oblig1> SELECT *
+        FROM information_schema.ENGINES
+[2022-09-12 00:12:55] 9 rows retrieved starting from 1 in 29 ms (execution: 5 ms, fetching: 24 ms)
+\end{sql}
+som gir:
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op4c1.png}
+\end{figure}
+
+Jeg sjekker også tabellen for forretningsregler for å se hvordan den jeg lagde i oppgave 2. f) blir lagret:
+\begin{sql}
+oblig1> SELECT *
+        FROM information_schema.CHECK_CONSTRAINTS
+[2022-09-12 00:12:55] 1 row retrieved starting from 1 in 51 ms (execution: 4 ms, fetching: 47 ms)
+\end{sql}
+som gir:
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op4c2.png}
+\end{figure}
+Interessant å se at den ikke lagrer 'ø' riktig i selve betingelsen, men uten at det skaper problemer for databasens operasjon.
+
+\section*{Oppgave 5}
+\subsection*{a)}
+Etter å ha gjort denne obligen, så har ikke forståelsen min for konseptet bak relasjonsdatabaser endret seg særlig. Dette er fordi jeg allerede hadde lært meg mye av teorien tidligere. Derimot har min forståelse, samt beherskelse av SQL spesifikt blitt en god del bedre, og jeg har fått en god forståelse av hvordan databasene oppererer i MySQL implementasjonen.
+
+\subsection*{b)}
+Jeg ser nå hvordan jeg skal gå fram for å dele opp data i tabeller med relaterte felt, og hvordan jeg kan knytte disse tabellene sammen med bruk av fremmednøkler. Samt at jeg nå har erfaring med å designe en SQL-database, og derfor føler meg mer rustet til å designe fremtidige databaser.
 
 \end{document}
