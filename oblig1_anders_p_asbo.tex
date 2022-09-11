@@ -414,4 +414,104 @@ som resulterer i
 \centering\includegraphics[width=\columnwidth]{op2b.png}
 \end{figure}
 
+\subsection*{c)}
+Lager en faktura-tabell med kolonner for fakturanummer, kundenummer, beløp, opprettelsesdato, forfallsdato, filmnummer og betalt. Fakturanummeret er unikt til hver faktura, og brukes derfor som primærnøkkel. Kundenummeret er en fremmednøkkel knyttet til hovednøkkelen i kunde-tabellen, slik at man vet hvilken kunde som har utført bestillingen. Filmnummeret er også en fremmednøkkel knyttet til hovednøkkelen i film-tabellen, slik at man vet hvilken film som er blitt leid. Til slutt har vi en bool i betalt som er True, hvis fakturaen er betalt og false hvis den ikke er betalt.
+
+Ingen av nøklene kan være NULL, siden fakturaen må ha et fakturanummer, må kunne knyttes til en leietager, og må kunne knyttes til produktet som ble utleid, ellers er det ikke en gyldig faktura. Jeg lar beløp være NULL ved default, da må prisen føres inn manuelt. Jeg valgte å ha prisen som DECIMAL(7, 2), siden da kan beløp pål opptil 99.999,- brukes. Datoene skal være på formatet 'YYYY-MM-DD', f.eks. '2022.04.11', og de kan ikke være NULL, for da kan ikke transaksjonen tidfestes, og er ugyldig. Hvis en faktura ikke opprettes med utfylte datoer, så blir opprettelsesdatoen lik datoen når fakturaen ble lagt til i tabellen, og forfallsdato blir 14 dager fra opprettelsesdato.
+
+\begin{sql}
+oblig1> CREATE TABLE Oblig1.Faktura
+        (
+            FakturaNr        INTEGER UNSIGNED NOT NULL,
+            KundeNr          INTEGER UNSIGNED NOT NULL,
+            FilmNr           INTEGER UNSIGNED NOT NULL,
+            Beløp            DECIMAL(7, 2)             DEFAULT NULL,
+            Opprettelsesdato DATE             NOT NULL DEFAULT (CURRENT_DATE),
+            Forfallsdato     DATE             NOT NULL DEFAULT (Opprettelsesdato + INTERVAL 14 DAY),
+            Betalt BOOL DEFAULT (FALSE),
+            PRIMARY KEY (FakturaNr),
+            FOREIGN KEY (KundeNr) REFERENCES Oblig1.Kunde (KNr),
+            FOREIGN KEY (FilmNr) REFERENCES Oblig1.Film (FNr)
+        )
+[2022-09-11 22:04:56] completed in 24 ms
+\end{sql}
+
+\newpage
+\subsection*{d)}
+Jeg legger til to fakturaer for Kari Mo:
+\begin{sql}
+oblig1> INSERT INTO Oblig1.Faktura (FakturaNr, KundeNr, FilmNr, Beløp, Opprettelsesdato, Betalt)
+            VALUES
+                (
+                 10001,
+                 (SELECT KNr FROM Oblig1.Kunde WHERE Fornavn = 'Kari' AND Etternavn = 'Mo'),
+                 14,
+                 (SELECT Pris FROM Oblig1.Film WHERE FNr = 14),
+                 '2021-12-30',
+                 TRUE
+                ),
+                (
+                 10002,
+                 (SELECT KNr FROM Oblig1.Kunde WHERE Fornavn = 'Geir' AND Etternavn = 'Gallestein'),
+                 11,
+                 (SELECT Pris FROM Oblig1.Film WHERE FNr = 11),
+                 '2022-04-01',
+                 TRUE
+                ),
+                (
+                 13592,
+                 (SELECT KNr FROM Oblig1.Kunde WHERE Fornavn = 'Kari' AND Etternavn = 'Mo'),
+                 5,
+                 (SELECT Pris FROM Oblig1.Film WHERE FNr = 5),
+                 CURRENT_DATE,
+                 FALSE
+                )
+[2022-09-11 22:13:52] 3 rows affected in 7 ms
+oblig1> SELECT *
+        FROM Oblig1.Faktura
+[2022-09-11 22:13:59] 3 rows retrieved starting from 1 in 26 ms (execution: 5 ms, fetching: 21 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op2d.png}
+\end{figure}
+
+\subsection*{e)}
+Finner Kari Mo sine fakturaer ved navn:
+\begin{sql}
+oblig1> SELECT *
+        FROM Oblig1.Faktura
+        WHERE KundeNr = (SELECT KNr FROM Oblig1.Kunde WHERE Fornavn = 'Kari' AND Etternavn = 'Mo')
+[2022-09-11 22:18:13] 2 rows retrieved starting from 1 in 38 ms (execution: 4 ms, fetching: 34 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op2e.png}
+\end{figure}
+
+\subsection*{f)}
+Lagt til forretningsregel for beløpet, slik at beløpet må være i intervallet \(\left[0, 10.000\right]\):
+\begin{sql}
+oblig1> ALTER TABLE Oblig1.Faktura
+            ADD CONSTRAINT Beløpsintervall
+            CHECK ( Beløp >= 0.00 AND Beløp <= 10000.00)
+[2022-09-11 22:28:29] 3 rows affected in 55 ms
+\end{sql}
+
+\subsection*{g)}
+Prøver å legge inn faktura med ulovlig beløp:
+\begin{sql}
+oblig1> INSERT INTO Oblig1.Faktura (FakturaNr, KundeNr, FilmNr, Beløp)
+        VALUE (1010, 1003, 1, 10000.69)
+[2022-09-11 22:33:47] [HY000][3819] Check constraint 'Beløpsintervall' is violated.
+[2022-09-11 22:33:47] [HY000][3819] Check constraint 'Beløpsintervall' is violated.
+oblig1> SELECT *
+        FROM Oblig1.Faktura
+[2022-09-11 22:34:03] 3 rows retrieved starting from 1 in 53 ms (execution: 6 ms, fetching: 47 ms)
+\end{sql}
+Her fikk jeg en feilmelding om at forretningsregelen er brutt, og ved å printe tabellen så ser jeg at den ulovlige fakturaen ikke ble lagt til:
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op2f.png}
+\end{figure}
+
 \end{document}
