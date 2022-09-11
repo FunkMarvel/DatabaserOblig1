@@ -200,10 +200,218 @@ rmp,
 
 \maketitle                                % creates the title, author, date
 
+\section*{Oppgave 1}
+\subsection*{a)}
+For å lage databasen "Oblig1" bruker jeg sql setningen
 \begin{sql}
-SELECT * -- comment
-FROM information_schema.TABLES
-WHERE TABLE_SCHEMA = 'hobyhuset';
+oblig1> CREATE SCHEMA Oblig1
+[2022-09-11 16:51:14] 1 row affected in 9 ms
 \end{sql}
+Som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op1a.png}
+\end{figure}
+
+\subsection*{b)}
+For å lage tabellen "Film", så bruker jeg følgende sql:
+\begin{sql}
+oblig1> CREATE TABLE Oblig1.Film (
+            FNr INTEGER UNSIGNED NOT NULL,
+            Tittel VARCHAR(40) NOT NULL,
+            År SMALLINT UNSIGNED,
+            Land VARCHAR(40),
+            Sjanger VARCHAR(20),
+            Alder TINYINT UNSIGNED,
+            Tid SMALLINT UNSIGNED,
+            Pris DECIMAL(5, 2),
+            PRIMARY KEY (FNr)
+        )
+[2022-09-11 17:25:37] completed in 19 ms
+\end{sql}
+
+\newpage
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op1b.png}
+\end{figure}
+
+\subsection*{c)}
+Jeg legger til dataene fra tabellen i boken med følgende sql:
+\begin{sql}
+oblig1> INSERT INTO Oblig1.Film
+        VALUES (1, 'Casablanca', 1942, 'USA', 'Drama', 15, 102, 149.00),
+               (2, 'Fort Apachea', 1948, 'USA', 'Western', 15, 127, NULL),
+               (3, 'Apocalypse Now', 1979, 'USA', 'Action', 18, 155, 123.00),
+               (4, 'Streets of Fire', 1984, 'USA', 'Action', 15, 93, NULL),
+               (5, 'High Noon', 1952, 'USA', 'Western', 15, 85, 123.00),
+               (6, 'Cinema Paradiso', 1988, 'Italia', 'Komedie', 11, 123, NULL),
+               (7, 'Asterix hos britene', 1988, 'Frankrike', 'Tegnefilm', 7, 78, 149.00),
+               (8, 'Veiviseren', 1987, 'Norge', 'Action', 15, 96, 87.00),
+               (9, 'Salmer fra kjøkkenet', 2002, 'Norge', 'Komedie', 7, 80, 149.00),
+               (10, 'Anastasia', 1997, 'USA', 'Tegnefilm', 7, 94, 123.00),
+               (11, 'La Grande bouffe', 1973, 'Frankrike', 'Drama', 15, 129, 87.00),
+               (12, 'Blues Brothers 2000', 1998, 'USA', 'Komedie', 11, 124, 135.00),
+               (13, 'Beatles: Help', 1965, 'Storbritannia', 'Musikk', 11, 144, NULL)
+[2022-09-11 18:13:34] 13 rows affected in 6 ms
+oblig1> SELECT * FROM Oblig1.Film
+[2022-09-11 18:19:18] 13 rows retrieved starting from 1 in 39 ms (execution: 5 ms, fetching: 34 ms)
+\end{sql}
+
+\newpage
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op1c.png}
+\end{figure}
+
+\subsection*{d)}
+For å finne tittel, sjanger og pris for filmer produsert i eller etter 1988, og sortere resultatet synkende etter pris, så bruker jeg følgende spørring:
+\begin{sql}
+oblig1> SELECT Tittel, Sjanger, Pris
+        FROM Oblig1.Film
+        WHERE År >= 1988
+        ORDER BY Pris DESC
+[2022-09-11 18:13:38] 5 rows retrieved starting from 1 in 44 ms (execution: 5 ms, fetching: 39 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op1d.png}
+\end{figure}
+
+\subsection*{e)}
+For å hente alle kolonner for filmer som mangler pris, sortert først etter aldersgrense og så alfabetisk etter sjanger, så bruker jeg følgende spørring:
+\begin{sql}
+oblig1> SELECT * FROM Oblig1.Film
+        WHERE Pris IS NULL
+        ORDER BY Alder, Sjanger ASC
+[2022-09-11 18:26:48] 4 rows retrieved starting from 1 in 52 ms (execution: 18 ms, fetching: 34 ms)
+\end{sql}
+\newpage
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op1e.png}
+\end{figure}
+
+\subsection*{f)}
+Jeg finner antall filmer i hver sjanger som er til salgs, og totalpris per sjanger, ved hjelp av følgende spørring:
+\begin{sql}
+oblig1> SELECT Sjanger, COUNT(Sjanger) AS 'Antall filmer', SUM(Pris) AS 'Totalpris'
+        FROM Oblig1.Film
+        WHERE Pris IS NOT NULL
+        GROUP BY Sjanger
+        ORDER BY Sjanger ASC
+[2022-09-11 18:51:56] 5 rows retrieved starting from 1 in 30 ms (execution: 5 ms, fetching: 25 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op1f.png}
+\end{figure}
+
+\subsection*{g)}
+Jeg legger til data for filmen "Ghost in the Shell (1995)" ved følgende spørring:
+\begin{sql}
+oblig1> INSERT INTO Oblig1.Film
+        VALUE (14, 'Ghost in the Shell', 1995, 'Japan', 'Tegnefilm', 13, 83, 95.00)
+[2022-09-11 19:02:07] 1 row affected in 19 ms
+oblig1> SELECT * FROM Oblig1.Film
+        WHERE Tittel = 'Ghost in the Shell'
+[2022-09-11 19:04:31] 1 row retrieved starting from 1 in 29 ms (execution: 4 ms, fetching: 25 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op1g.png}
+\end{figure}
+
+\newpage
+\subsection*{h)}
+Bruker følgende sql for å korrigere tittelen film nummer \(5\) fra 'High Noon' til 'High Moon':
+\begin{sql}
+oblig1> UPDATE Oblig1.Film
+        SET Tittel = 'High Moon'
+        WHERE Tittel = 'High Noon'
+[2022-09-11 19:15:28] 1 row affected in 7 ms
+oblig1> SELECT FNr, Tittel
+        FROM Oblig1.Film
+        WHERE Tittel = 'High Moon'
+[2022-09-11 19:16:32] 1 row retrieved starting from 1 in 30 ms (execution: 5 ms, fetching: 25 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op1h.png}
+\end{figure}
+
+\subsection*{i)}
+Øker prisen med \(10\%\) på action-filmer med følgende kode:
+\begin{sql}
+oblig1> UPDATE Oblig1.Film
+        SET Pris = Pris * 1.1
+        WHERE Sjanger = 'Action'
+[2022-09-11 19:23:18] 3 rows affected in 6 ms
+oblig1> SELECT Sjanger, Tittel, Pris
+        FROM Oblig1.Film
+        WHERE Sjanger = 'Action'
+        ORDER BY Tittel ASC
+[2022-09-11 19:27:54] 3 rows retrieved starting from 1 in 31 ms (execution: 4 ms, fetching: 27 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op1i.png}
+\end{figure}
+
+\section*{j}
+Sletter filmen 'Anastasia':
+\begin{sql}
+oblig1> DELETE
+        FROM Oblig1.Film
+        WHERE Tittel = 'Anastasia'
+[2022-09-11 19:34:24] 1 row affected in 21 ms
+oblig1> SELECT Tittel
+        FROM Oblig1.Film
+        ORDER BY Tittel ASC
+[2022-09-11 19:35:25] 13 rows retrieved starting from 1 in 35 ms (execution: 17 ms, fetching: 18 ms)
+\end{sql}
+\newpage
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op1j.png}
+\end{figure}
+
+\section*{Oppgave 2}
+\subsection*{a)}
+Lager tabellen 'Kunde':
+\begin{sql}
+oblig1> CREATE TABLE Oblig1.Kunde (
+            KNr INTEGER UNSIGNED NOT NULL,
+            Fornavn VARCHAR(50),
+            Etternavn VARCHAR(50),
+            Adresse VARCHAR(100),
+            PostNr SMALLINT UNSIGNED,
+            PRIMARY KEY (KNr)
+        )
+[2022-09-11 19:45:51] completed in 37 ms
+oblig1> SELECT *
+        FROM Oblig1.kunde
+[2022-09-11 19:47:38] 0 rows retrieved in 29 ms (execution: 4 ms, fetching: 25 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[scale=1]{op2a.png}
+\end{figure}
+
+\subsection*{b)}
+Legger til data for tre kunder:
+\begin{sql}
+oblig1> INSERT INTO Oblig1.Kunde
+        VALUES (10001, 'Kari', 'Mo', 'Moldegata 21 H0402', 0445),
+               (10002, 'Geir', 'Gallestein', 'Grønnegata 68 H0304', 2317),
+               (10003, 'Reidun', 'Roterud', 'Hylleråsvegen 11', 2440)
+[2022-09-11 19:56:01] 3 rows affected in 6 ms
+oblig1> SELECT *
+        FROM Oblig1.Kunde
+[2022-09-11 19:56:03] 3 rows retrieved starting from 1 in 35 ms (execution: 5 ms, fetching: 30 ms)
+\end{sql}
+som resulterer i
+\begin{figure}[H]
+\centering\includegraphics[width=\columnwidth]{op2b.png}
+\end{figure}
 
 \end{document}
